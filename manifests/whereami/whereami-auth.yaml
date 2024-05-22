@@ -1,0 +1,33 @@
+apiVersion: security.istio.io/v1
+kind: RequestAuthentication
+metadata:
+  name: whereami
+  namespace: whereami
+spec:
+  selector:
+    matchLabels:
+      app: whereami
+  jwtRules:
+  - issuer: "https://accounts.google.com"
+    jwksUri: https://www.googleapis.com/oauth2/v3/certs
+    outputPayloadToHeader: X-Authenticated-User # Just for debugging, pass the JWT down to the app
+    audiences:
+    - "https://api.example-audience.com" # Optionally validate the audience
+    fromHeaders:
+    - name: "Authorization"
+      prefix: "Bearer " # Prefix with Bearer
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: whereami
+  namespace: whereami
+spec:
+  selector:
+    matchLabels:
+      app: whereami
+  rules:
+  - from:
+    - source:
+        requestPrincipals: ["https://accounts.google.com/116200311504691465126"] # Validate the Google JWT Principal - Format is <Issuer>/<SA Unique ID>
+        principals: ["appmod-golden-demo-dev.svc.id.goog/ns/gateways/sa/istio-ingressgateway-whereami"] # Ensure the upstream request comes from our ingress gateway
