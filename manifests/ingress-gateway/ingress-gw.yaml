@@ -52,8 +52,8 @@ metadata:
   labels:
     app: istio-ingressgateway-whereami
     istio: ingressgateway-whereami
-  # annotations:
-  #   networking.gke.io/load-balancer-type: "Internal"
+  annotations:
+    networking.gke.io/load-balancer-type: "Internal"
 spec:
   ports:
   # status-port exposes a /healthz/ready endpoint that can be used with GKE Ingress health checks
@@ -70,3 +70,4 @@ spec:
     istio: ingressgateway-whereami
     app: istio-ingressgateway-whereami
   type: LoadBalancer
+  externalTrafficPolicy: Local # Required to ensure the correct source IP

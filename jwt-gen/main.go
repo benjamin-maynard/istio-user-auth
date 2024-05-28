@@ -13,7 +13,7 @@ import (
 
 const (
 	serviceAccountKeyPath = "service-account.json" // Replace with path relative to this folder of your Service Account Key
-	serviceURL            = "http://34.29.242.112/"
+	serviceURL            = "http://34.134.245.63/"
 )
 
 func main() {
