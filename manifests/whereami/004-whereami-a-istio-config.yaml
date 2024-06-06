@@ -1,0 +1,37 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: whereami-a
+  namespace: whereami-a
+spec:
+  hosts:
+  - "whereami-a.example.com" # Ensure we are specifying a host for host header based routing
+  gateways:
+  - gateways/whereami-gateway
+  http:
+  - match:
+    - uri:
+        exact: /
+    route:
+    - destination:
+        host: whereami-a
+        port:
+          number: 8080
+---
+# This is only used for ensuring requests come from the Ingress Gateway.
+# IP filtering is performed on the Ingress GW itself, in 007-ingress-gw-auth.yaml
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: whereami-a
+  namespace: whereami-a
+spec:
+  selector:
+    matchLabels:
+      app: whereami-a
+  rules:
+  - from:
+    - source:
+        principals: [
+          "appmod-golden-demo-dev.svc.id.goog/ns/gateways/sa/istio-ingressgateway-whereami"
+          ] # Ensure the upstream request comes from our ingress gateway

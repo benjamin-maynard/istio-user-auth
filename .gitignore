@@ -1,1 +1,3 @@
 service-account.json
+jwt-gen/main
+.DS_Store

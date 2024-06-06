@@ -1,30 +1,30 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: whereami
+  name: whereami-a
   labels:
     istio-injection: enabled
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: whereami
-  namespace: whereami
+  name: whereami-a
+  namespace: whereami-a
   labels:
-    app: whereami
-    service: whereami
+    app: whereami-a
+    service: whereami-a
 spec:
   ports:
   - port: 8080
     name: http
   selector:
-    app: whereami
+    app: whereami-a
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: whereami-configmap
-  namespace: whereami
+  name: whereami-a-configmap
+  namespace: whereami-a
 data:
   METADATA: "echo_headers_enabled"
   ECHO_HEADERS: "True"
@@ -33,18 +33,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: whereami
-  name: whereami
-  namespace: whereami
+    app: whereami-a
+  name: whereami-a
+  namespace: whereami-a
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: whereami
+      app: whereami-a
   template:
     metadata:
       labels:
-        app: whereami
+        app: whereami-a
         version: v1
     spec:
       securityContext:
@@ -53,7 +53,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
       containers:
-      - name: whereami
+      - name: whereami-a
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -96,41 +96,5 @@ spec:
           - name: ECHO_HEADERS
             valueFrom:
               configMapKeyRef:
-                name: whereami-configmap
+                name: whereami-a-configmap
                 key: ECHO_HEADERS
----
-apiVersion: networking.istio.io/v1alpha3
-kind: Gateway
-metadata:
-  name: whereami-gateway
-  namespace: whereami
-spec:
-  selector:
-    app: istio-ingressgateway-whereami
-  servers:
-  - port:
-      number: 80
-      name: http
-      protocol: HTTP
-    hosts:
-    - "*"
----
-apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: whereami
-  namespace: whereami
-spec:
-  hosts:
-  - "*"
-  gateways:
-  - whereami/whereami-gateway
-  http:
-  - match:
-    - uri:
-        exact: /
-    route:
-    - destination:
-        host: whereami
-        port:
-          number: 8080

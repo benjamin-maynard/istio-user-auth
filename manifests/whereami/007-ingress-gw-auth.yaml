@@ -1,0 +1,28 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: istio-ingressgateway-whereami
+  namespace: gateways
+spec:
+  selector:
+    matchLabels:
+      app: istio-ingressgateway-whereami
+  rules:
+  - from:
+    - source:
+        # We are limiting using ipBlocks, which uses the source IP of the packet (not the x-f-f header)
+        ipBlocks: [
+          "10.67.4.198/32" # Different IP to one below
+          ]
+    to:
+    - operation:
+        # But we are scoping this rule to a specific host, meaning 10.67.4.198/32 can talk to whereami-b but not whereami-a
+        hosts: ["whereami-b.example.com"]
+  - from:
+    - source:
+        ipBlocks: [
+          "10.67.3.198/32" # Different IP to one above
+          ]
+    to:
+    - operation:
+        hosts: ["whereami-a.example.com"]

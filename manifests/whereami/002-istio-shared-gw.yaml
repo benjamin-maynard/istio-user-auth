@@ -1,0 +1,16 @@
+# Create a Gateway for our Where Am I service that selects the Ingress Gateway
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: whereami-gateway
+  namespace: gateways
+spec:
+  selector:
+    app: istio-ingressgateway-whereami
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
